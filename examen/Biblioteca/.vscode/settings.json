@@ -1,0 +1,6 @@
+{
+    "java.debug.settings.onBuildFailureProceed": true,
+    "code-runner.executorMap": {
+        "java": "javac src/*.java && java -cp src Main"
+    }
+}
