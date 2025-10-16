@@ -21,7 +21,7 @@ public class Main {
             System.out.println("0. Salir");
             System.out.print("Seleccione una opción: ");
             opcion = scanner.nextInt();
-            scanner.nextLine(); // Consumir newline
+            scanner.nextLine(); 
 
             switch (opcion) {
                 case 1:
