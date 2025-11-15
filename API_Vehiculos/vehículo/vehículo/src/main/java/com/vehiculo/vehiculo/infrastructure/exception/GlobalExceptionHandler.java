@@ -20,6 +20,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PlacaDuplicadaException.class)
+    public ResponseEntity<ErrorResponse> manejarPlacaDuplicada(
+            PlacaDuplicadaException ex) {
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarExcepcionGeneral(
             Exception ex) {

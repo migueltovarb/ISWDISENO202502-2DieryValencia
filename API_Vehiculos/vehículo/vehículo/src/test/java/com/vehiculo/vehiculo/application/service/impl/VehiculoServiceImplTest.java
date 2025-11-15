@@ -5,6 +5,7 @@ import com.vehiculo.vehiculo.application.dto.VehiculoDTO;
 import com.vehiculo.vehiculo.application.mapper.VehiculoMapper;
 import com.vehiculo.vehiculo.domain.entity.Vehiculo;
 import com.vehiculo.vehiculo.domain.repository.VehiculoRepository;
+import com.vehiculo.vehiculo.infrastructure.exception.PlacaDuplicadaException;
 import com.vehiculo.vehiculo.infrastructure.exception.VehiculoNoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,7 @@ class VehiculoServiceImplTest {
 
     @Test
     void crearVehiculo_Exitoso() {
+        when(vehiculoRepository.findByPlaca("ABC123")).thenReturn(Mono.empty());
         when(vehiculoMapper.toEntity(crearVehiculoDTO)).thenReturn(vehiculo);
         when(vehiculoRepository.save(any(Vehiculo.class))).thenReturn(Mono.just(vehiculo));
         when(vehiculoMapper.toDTO(vehiculo)).thenReturn(vehiculoDTO);
@@ -90,7 +92,20 @@ class VehiculoServiceImplTest {
                 .expectNext(vehiculoDTO)
                 .verifyComplete();
 
+        verify(vehiculoRepository, times(1)).findByPlaca("ABC123");
         verify(vehiculoRepository, times(1)).save(any(Vehiculo.class));
+    }
+
+    @Test
+    void crearVehiculo_PlacaDuplicada() {
+        when(vehiculoRepository.findByPlaca("ABC123")).thenReturn(Mono.just(vehiculo));
+
+        StepVerifier.create(vehiculoService.crearVehiculo(crearVehiculoDTO))
+                .expectError(PlacaDuplicadaException.class)
+                .verify();
+
+        verify(vehiculoRepository, times(1)).findByPlaca("ABC123");
+        verify(vehiculoRepository, never()).save(any(Vehiculo.class));
     }
 
     @Test
@@ -132,12 +147,49 @@ class VehiculoServiceImplTest {
         when(vehiculoRepository.save(any(Vehiculo.class)))
                 .thenReturn(Mono.just(vehiculo));
         when(vehiculoMapper.toDTO(vehiculo)).thenReturn(vehiculoDTO);
+        doNothing().when(vehiculoMapper).actualizarDatos(any(Vehiculo.class), any(CrearVehiculoDTO.class));
 
         StepVerifier.create(vehiculoService.actualizarVehiculo("507f1f77bcf86cd799439011", crearVehiculoDTO))
                 .expectNext(vehiculoDTO)
                 .verifyComplete();
 
         verify(vehiculoRepository, times(1)).save(any(Vehiculo.class));
+    }
+
+    @Test
+    void actualizarVehiculo_PlacaDuplicada() {
+        Vehiculo otroVehiculo = Vehiculo.builder()
+                .id("507f1f77bcf86cd799439012")
+                .placa("XYZ789")
+                .marca("Honda")
+                .modelo("Civic")
+                .año(2023)
+                .color("Rojo")
+                .tipo("Auto")
+                .precio(27000.0)
+                .estado("Disponible")
+                .build();
+
+        CrearVehiculoDTO dtoConPlacaDuplicada = CrearVehiculoDTO.builder()
+                .placa("XYZ789")
+                .marca("Toyota")
+                .modelo("Corolla")
+                .año(2023)
+                .color("Blanco")
+                .tipo("Auto")
+                .precio(25000.0)
+                .estado("Disponible")
+                .build();
+
+        when(vehiculoRepository.findById("507f1f77bcf86cd799439011"))
+                .thenReturn(Mono.just(vehiculo));
+        when(vehiculoRepository.findByPlaca("XYZ789")).thenReturn(Mono.just(otroVehiculo));
+
+        StepVerifier.create(vehiculoService.actualizarVehiculo("507f1f77bcf86cd799439011", dtoConPlacaDuplicada))
+                .expectError(PlacaDuplicadaException.class)
+                .verify();
+
+        verify(vehiculoRepository, never()).save(any(Vehiculo.class));
     }
 
     @Test
@@ -151,5 +203,17 @@ class VehiculoServiceImplTest {
                 .verifyComplete();
 
         verify(vehiculoRepository, times(1)).deleteById("507f1f77bcf86cd799439011");
+    }
+
+    @Test
+    void eliminarVehiculo_NoEncontrado() {
+        when(vehiculoRepository.findById(anyString()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(vehiculoService.eliminarVehiculo("id_inexistente"))
+                .expectError(VehiculoNoEncontradoException.class)
+                .verify();
+
+        verify(vehiculoRepository, never()).deleteById(anyString());
     }
 }
