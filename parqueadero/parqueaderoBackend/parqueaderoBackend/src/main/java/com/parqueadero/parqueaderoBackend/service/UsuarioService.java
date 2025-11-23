@@ -1,17 +1,37 @@
 package com.parqueadero.parqueaderoBackend.service;
 
-import com.parqueadero.parqueaderoBackend.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class Usuario {
+import org.springframework.stereotype.Service;
 
-    @Autowired
+import com.parqueadero.parqueaderoBackend.repository.UsuarioRepository;
+
+@Service
+public class UsuarioService {
+
     private UsuarioRepository usuarioRepository;
+
+    public UsuarioService() {}
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    public UsuarioRepository getUsuarioRepository() {
+        return usuarioRepository;
+    }
+
+    public void setUsuarioRepository(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    @Override
+    public String toString() {
+        return "UsuarioService{" +
+                "usuarioRepository=" + usuarioRepository +
+                '}';
+    }
 
     public com.parqueadero.parqueaderoBackend.model.Usuario save(com.parqueadero.parqueaderoBackend.model.Usuario usuario) {
         return usuarioRepository.save(usuario);

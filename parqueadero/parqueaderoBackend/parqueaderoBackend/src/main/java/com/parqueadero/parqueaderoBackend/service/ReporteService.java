@@ -1,25 +1,52 @@
 package com.parqueadero.parqueaderoBackend.service;
 
-import com.parqueadero.parqueaderoBackend.model.Pago;
-import com.parqueadero.parqueaderoBackend.model.Reserva;
-import com.parqueadero.parqueaderoBackend.repository.PagoRepository;
-import com.parqueadero.parqueaderoBackend.repository.ReservaRepository;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bson.Document;
+import org.springframework.stereotype.Service;
+
+import com.parqueadero.parqueaderoBackend.model.Pago;
+import com.parqueadero.parqueaderoBackend.repository.PagoRepository;
+import com.parqueadero.parqueaderoBackend.repository.ReservaRepository;
+
 @Service
 public class ReporteService {
 
-    @Autowired
     private ReservaRepository reservaRepository;
-
-    @Autowired
     private PagoRepository pagoRepository;
+
+    public ReporteService() {}
+
+    public ReporteService(ReservaRepository reservaRepository, PagoRepository pagoRepository) {
+        this.reservaRepository = reservaRepository;
+        this.pagoRepository = pagoRepository;
+    }
+
+    public ReservaRepository getReservaRepository() {
+        return reservaRepository;
+    }
+
+    public void setReservaRepository(ReservaRepository reservaRepository) {
+        this.reservaRepository = reservaRepository;
+    }
+
+    public PagoRepository getPagoRepository() {
+        return pagoRepository;
+    }
+
+    public void setPagoRepository(PagoRepository pagoRepository) {
+        this.pagoRepository = pagoRepository;
+    }
+
+    @Override
+    public String toString() {
+        return "ReporteService{" +
+                "reservaRepository=" + reservaRepository +
+                ", pagoRepository=" + pagoRepository +
+                '}';
+    }
 
     // Reporte de ocupación por día (simplificado)
     public List<Document> getOcupacionPorDia(LocalDate fecha) {

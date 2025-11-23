@@ -1,17 +1,37 @@
 package com.parqueadero.parqueaderoBackend.service;
 
-import com.parqueadero.parqueaderoBackend.repository.CupoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class Cupo {
+import org.springframework.stereotype.Service;
 
-    @Autowired
+import com.parqueadero.parqueaderoBackend.repository.CupoRepository;
+
+@Service
+public class CupoService {
+
     private CupoRepository cupoRepository;
+
+    public CupoService() {}
+
+    public CupoService(CupoRepository cupoRepository) {
+        this.cupoRepository = cupoRepository;
+    }
+
+    public CupoRepository getCupoRepository() {
+        return cupoRepository;
+    }
+
+    public void setCupoRepository(CupoRepository cupoRepository) {
+        this.cupoRepository = cupoRepository;
+    }
+
+    @Override
+    public String toString() {
+        return "CupoService{" +
+                "cupoRepository=" + cupoRepository +
+                '}';
+    }
 
     public com.parqueadero.parqueaderoBackend.model.Cupo save(com.parqueadero.parqueaderoBackend.model.Cupo cupo) {
         return cupoRepository.save(cupo);

@@ -1,26 +1,62 @@
 package com.parqueadero.parqueaderoBackend.service;
 
+import java.time.LocalDateTime;
+
+import org.springframework.stereotype.Service;
+
 import com.parqueadero.parqueaderoBackend.model.EstadoReserva;
 import com.parqueadero.parqueaderoBackend.model.Pago;
 import com.parqueadero.parqueaderoBackend.model.Reserva;
 import com.parqueadero.parqueaderoBackend.repository.PagoRepository;
 import com.parqueadero.parqueaderoBackend.repository.ReservaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
-public class Pago {
+public class PagoService {
 
-    @Autowired
     private PagoRepository pagoRepository;
-
-    @Autowired
     private ReservaRepository reservaRepository;
+    private QrService qrService;
 
-    @Autowired
-    private Qr qrService;
+    public PagoService() {}
+
+    public PagoService(PagoRepository pagoRepository, ReservaRepository reservaRepository, QrService qrService) {
+        this.pagoRepository = pagoRepository;
+        this.reservaRepository = reservaRepository;
+        this.qrService = qrService;
+    }
+
+    public PagoRepository getPagoRepository() {
+        return pagoRepository;
+    }
+
+    public void setPagoRepository(PagoRepository pagoRepository) {
+        this.pagoRepository = pagoRepository;
+    }
+
+    public ReservaRepository getReservaRepository() {
+        return reservaRepository;
+    }
+
+    public void setReservaRepository(ReservaRepository reservaRepository) {
+        this.reservaRepository = reservaRepository;
+    }
+
+    public QrService getQrService() {
+        return qrService;
+    }
+
+    public void setQrService(QrService qrService) {
+        this.qrService = qrService;
+    }
+
+    @Override
+    public String toString() {
+        return "PagoService{" +
+                "pagoRepository=" + pagoRepository +
+                ", reservaRepository=" + reservaRepository +
+                ", qrService=" + qrService +
+                '}';
+    }
 
     public Pago processPago(String reservaId, double monto, String medioPago) {
         Reserva reserva = reservaRepository.findById(reservaId)
