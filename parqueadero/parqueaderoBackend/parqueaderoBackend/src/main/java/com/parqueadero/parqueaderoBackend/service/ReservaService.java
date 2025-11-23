@@ -98,14 +98,16 @@ public class ReservaService {
         double total = hours * cupoModel.getPrecio();
 
         // Create reserva
-        com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = com.parqueadero.parqueaderoBackend.model.Reserva.builder()
-                .usuarioId(request.getUsuarioId())
-                .cupoId(request.getCupoId())
-                .fechaInicio(request.getFechaInicio())
-                .fechaFin(request.getFechaFin())
-                .total(total)
-                .estado(EstadoReserva.PENDIENTE)
-                .build();
+        com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = new com.parqueadero.parqueaderoBackend.model.Reserva(
+                null,
+                request.getUsuarioId(),
+                request.getCupoId(),
+                request.getFechaInicio(),
+                request.getFechaFin(),
+                total,
+                EstadoReserva.PENDIENTE,
+                null
+        );
 
         return reservaRepository.save(reservaModel);
     }
@@ -120,16 +122,16 @@ public class ReservaService {
         com.parqueadero.parqueaderoBackend.model.Cupo cupoModel = cupoRepository.findById(reservaModel.getCupoId())
                 .orElseThrow(() -> new RuntimeException("Cupo no encontrado"));
 
-        return ReservaResponseDTO.builder()
-                .id(reservaModel.getId())
-                .usuarioNombre(usuarioModel.getNombre())
-                .cupoNumero(cupoModel.getNumero())
-                .fechaInicio(reservaModel.getFechaInicio())
-                .fechaFin(reservaModel.getFechaFin())
-                .total(reservaModel.getTotal())
-                .estado(reservaModel.getEstado())
-                .qrToken(reservaModel.getQrToken())
-                .build();
+        return new ReservaResponseDTO(
+                reservaModel.getId(),
+                usuarioModel.getNombre(),
+                cupoModel.getNumero(),
+                reservaModel.getFechaInicio(),
+                reservaModel.getFechaFin(),
+                reservaModel.getTotal(),
+                reservaModel.getEstado(),
+                reservaModel.getQrToken()
+        );
     }
 
     public List<com.parqueadero.parqueaderoBackend.model.Reserva> findAll() {

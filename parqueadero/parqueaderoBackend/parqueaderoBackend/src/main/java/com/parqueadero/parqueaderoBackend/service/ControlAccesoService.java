@@ -69,11 +69,13 @@ public class ControlAccesoService {
         }
 
         // Create registro
-        RegistroAcceso registro = RegistroAcceso.builder()
-                .reservaId(reservaModel.getId())
-                .fechaEntrada(now)
-                .estado(EstadoRegistroAcceso.EN_PARQUEADERO)
-                .build();
+        RegistroAcceso registro = new RegistroAcceso(
+                null,
+                reservaModel.getId(),
+                now,
+                null,
+                EstadoRegistroAcceso.EN_PARQUEADERO
+        );
 
         registroAccesoRepository.save(registro);
 

@@ -1,6 +1,7 @@
 package com.parqueadero.parqueaderoBackend.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -67,12 +68,13 @@ public class PagoService {
         }
 
         // Assume payment is successful
-        Pago pago = Pago.builder()
-                .reservaId(reservaId)
-                .monto(monto)
-                .fecha(LocalDateTime.now())
-                .medioPago(medioPago)
-                .build();
+        Pago pago = new Pago(
+                null,
+                reservaId,
+                monto,
+                LocalDateTime.now(),
+                medioPago
+        );
 
         pagoRepository.save(pago);
 
@@ -82,5 +84,9 @@ public class PagoService {
         reservaRepository.save(reserva);
 
         return pago;
+    }
+
+    public Optional<Pago> findById(String id) {
+        return pagoRepository.findById(id);
     }
 }
