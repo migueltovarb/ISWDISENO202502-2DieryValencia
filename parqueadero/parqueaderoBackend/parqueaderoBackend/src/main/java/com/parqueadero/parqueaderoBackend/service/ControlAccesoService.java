@@ -53,8 +53,8 @@ public class ControlAccesoService {
         com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = reservaRepository.findByQrToken(qrToken)
                 .orElseThrow(() -> new RuntimeException("QR inválido"));
 
-        if (reservaModel.getEstado() != EstadoReserva.PAGADA) {
-            throw new RuntimeException("Reserva no pagada");
+        if (reservaModel.getEstado() != EstadoReserva.CONFIRMADA) {
+            throw new RuntimeException("Reserva no confirmada");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -79,7 +79,7 @@ public class ControlAccesoService {
 
         registroAccesoRepository.save(registro);
 
-        reservaModel.setEstado(EstadoReserva.ACTIVA);
+        reservaModel.setEstado(EstadoReserva.EN_USO);
         reservaRepository.save(reservaModel);
 
         return "Acceso Concedido";
@@ -104,7 +104,7 @@ public class ControlAccesoService {
             System.out.println("Horas extra: " + extraHours);
         }
 
-        reservaModel.setEstado(EstadoReserva.FINALIZADA);
+        reservaModel.setEstado(EstadoReserva.COMPLETADA);
         reservaRepository.save(reservaModel);
 
         return "Salida Registrada";

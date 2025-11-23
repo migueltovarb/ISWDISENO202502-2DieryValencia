@@ -1,5 +1,6 @@
 package com.parqueadero.parqueaderoBackend.service;
 
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -7,146 +8,134 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.parqueadero.parqueaderoBackend.dto.ReservaRequestDTO;
-import com.parqueadero.parqueaderoBackend.dto.ReservaResponseDTO;
+import com.parqueadero.parqueaderoBackend.model.Cupo;
+import com.parqueadero.parqueaderoBackend.model.EstadoCupo;
 import com.parqueadero.parqueaderoBackend.model.EstadoReserva;
-import com.parqueadero.parqueaderoBackend.repository.CupoRepository;
+import com.parqueadero.parqueaderoBackend.model.Reserva;
+import com.parqueadero.parqueaderoBackend.model.Usuario;
 import com.parqueadero.parqueaderoBackend.repository.ReservaRepository;
-import com.parqueadero.parqueaderoBackend.repository.UsuarioRepository;
 
 @Service
 public class ReservaService {
 
-    private ReservaRepository reservaRepository;
-    private UsuarioRepository usuarioRepository;
-    private CupoRepository cupoRepository;
-    private QrService qrService;
+    private final ReservaRepository reservaRepository;
+    private final CupoService cupoService;
+    private final UsuarioService usuarioService;
 
-    public ReservaService() {}
-
-    public ReservaService(ReservaRepository reservaRepository, UsuarioRepository usuarioRepository, CupoRepository cupoRepository, QrService qrService) {
+    public ReservaService(ReservaRepository reservaRepository, CupoService cupoService, UsuarioService usuarioService) {
         this.reservaRepository = reservaRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.cupoRepository = cupoRepository;
-        this.qrService = qrService;
+        this.cupoService = cupoService;
+        this.usuarioService = usuarioService;
     }
 
-    public ReservaRepository getReservaRepository() {
-        return reservaRepository;
-    }
-
-    public void setReservaRepository(ReservaRepository reservaRepository) {
-        this.reservaRepository = reservaRepository;
-    }
-
-    public UsuarioRepository getUsuarioRepository() {
-        return usuarioRepository;
-    }
-
-    public void setUsuarioRepository(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
-
-    public CupoRepository getCupoRepository() {
-        return cupoRepository;
-    }
-
-    public void setCupoRepository(CupoRepository cupoRepository) {
-        this.cupoRepository = cupoRepository;
-    }
-
-    public QrService getQrService() {
-        return qrService;
-    }
-
-    public void setQrService(QrService qrService) {
-        this.qrService = qrService;
-    }
-
-    @Override
-    public String toString() {
-        return "ReservaService{" +
-                "reservaRepository=" + reservaRepository +
-                ", usuarioRepository=" + usuarioRepository +
-                ", cupoRepository=" + cupoRepository +
-                ", qrService=" + qrService +
-                '}';
-    }
-
-    public com.parqueadero.parqueaderoBackend.model.Reserva createReserva(ReservaRequestDTO request) {
-        // Validate usuario
-        com.parqueadero.parqueaderoBackend.model.Usuario usuarioModel = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        // Validate cupo
-        com.parqueadero.parqueaderoBackend.model.Cupo cupoModel = cupoRepository.findById(request.getCupoId())
-                .orElseThrow(() -> new RuntimeException("Cupo no encontrado"));
-
-        // Check overlap
-        List<com.parqueadero.parqueaderoBackend.model.Reserva> overlapping = reservaRepository.findByCupoIdAndEstadoInAndFechaInicioLessThanAndFechaFinGreaterThan(
-                request.getCupoId(),
-                Arrays.asList(EstadoReserva.PAGADA, EstadoReserva.ACTIVA),
-                request.getFechaFin(),
-                request.getFechaInicio()
-        );
-        if (!overlapping.isEmpty()) {
-            throw new RuntimeException("Cupo ocupado en ese horario");
+    public Reserva crearReserva(Reserva reserva) {
+        // Validar usuario existe
+        Optional<Usuario> usuario = usuarioService.findById(reserva.getUsuarioId());
+        if (usuario.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
         }
 
-        // Calculate total
-        long hours = ChronoUnit.HOURS.between(request.getFechaInicio(), request.getFechaFin());
-        Double total = hours * cupoModel.getPrecio();
+        // Validar cupo existe
+        Optional<Cupo> cupo = cupoService.findById(reserva.getCupoId());
+        if (cupo.isEmpty()) {
+            throw new RuntimeException("Cupo no encontrado");
+        }
 
-        // Create reserva
-        com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = new com.parqueadero.parqueaderoBackend.model.Reserva(
-                null,
-                request.getUsuarioId(),
-                request.getCupoId(),
-                request.getFechaInicio(),
-                request.getFechaFin(),
-                total,
-                EstadoReserva.PENDIENTE,
-                null
+        // Validar cupo disponible
+        if (cupo.get().getEstado() != EstadoCupo.DISPONIBLE) {
+            throw new RuntimeException("Cupo no disponible");
+        }
+
+        // Validar fechas
+        if (reserva.getFechaFin().isBefore(reserva.getFechaInicio()) || reserva.getFechaFin().equals(reserva.getFechaInicio())) {
+            throw new RuntimeException("Fecha fin debe ser posterior a fecha inicio");
+        }
+
+        if (reserva.getFechaInicio().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Fecha inicio no puede estar en el pasado");
+        }
+
+        // Verificar no hay reservas activas en esas fechas
+        List<Reserva> overlapping = reservaRepository.findByCupoIdAndEstadoIn(
+                reserva.getCupoId(),
+                Arrays.asList(EstadoReserva.CONFIRMADA, EstadoReserva.EN_USO)
         );
+        for (Reserva r : overlapping) {
+            if (!(reserva.getFechaFin().isBefore(r.getFechaInicio()) || reserva.getFechaInicio().isAfter(r.getFechaFin()))) {
+                throw new RuntimeException("Cupo ocupado en esas fechas");
+            }
+        }
 
-        return reservaRepository.save(reservaModel);
+        // Calcular costo estimado
+        double costoEstimado = calcularCosto(reserva.getFechaInicio(), reserva.getFechaFin(), cupo.get().getPrecio());
+        reserva.setCostoEstimado(costoEstimado);
+        reserva.setEstado(EstadoReserva.PENDIENTE_PAGO);
+        reserva.setFechaCreacion(LocalDateTime.now());
+
+        return reservaRepository.save(reserva);
     }
 
-    public ReservaResponseDTO getReservaResponse(String id) {
-        com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = reservaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-
-        com.parqueadero.parqueaderoBackend.model.Usuario usuarioModel = usuarioRepository.findById(reservaModel.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        com.parqueadero.parqueaderoBackend.model.Cupo cupoModel = cupoRepository.findById(reservaModel.getCupoId())
-                .orElseThrow(() -> new RuntimeException("Cupo no encontrado"));
-
-        return new ReservaResponseDTO(
-                reservaModel.getId(),
-                usuarioModel.getNombre(),
-                cupoModel.getNumero(),
-                reservaModel.getFechaInicio(),
-                reservaModel.getFechaFin(),
-                reservaModel.getTotal(),
-                reservaModel.getEstado(),
-                reservaModel.getQrToken()
-        );
-    }
-
-    public List<com.parqueadero.parqueaderoBackend.model.Reserva> findAll() {
+    public List<Reserva> findAll() {
         return reservaRepository.findAll();
     }
 
-    public Optional<com.parqueadero.parqueaderoBackend.model.Reserva> findById(String id) {
+    public Optional<Reserva> findById(String id) {
         return reservaRepository.findById(id);
     }
 
-    public Optional<com.parqueadero.parqueaderoBackend.model.Reserva> findByQrToken(String qrToken) {
+    public List<Reserva> findByUsuarioId(String usuarioId) {
+        return reservaRepository.findByUsuarioId(usuarioId);
+    }
+
+    public List<Reserva> findByCupoId(String cupoId) {
+        return reservaRepository.findByCupoId(cupoId);
+    }
+
+    public Reserva cambiarEstado(String id, EstadoReserva nuevoEstado) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        reserva.setEstado(nuevoEstado);
+        return reservaRepository.save(reserva);
+    }
+
+    public Reserva cancelarReserva(String id) {
+        return cambiarEstado(id, EstadoReserva.CANCELADA);
+    }
+
+    public Reserva confirmarReserva(String id) {
+        Reserva reserva = cambiarEstado(id, EstadoReserva.CONFIRMADA);
+        // Cambiar cupo a OCUPADO
+        cupoService.findById(reserva.getCupoId()).ifPresent(cupo -> {
+            cupo.setEstado(EstadoCupo.OCUPADO);
+            cupoService.save(cupo);
+        });
+        return reserva;
+    }
+
+    public Reserva completarReserva(String id, Double costoFinal) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        reserva.setEstado(EstadoReserva.COMPLETADA);
+        reserva.setCostoFinal(costoFinal);
+        Reserva saved = reservaRepository.save(reserva);
+        // Liberar cupo
+        cupoService.findById(reserva.getCupoId()).ifPresent(cupo -> {
+            cupo.setEstado(EstadoCupo.DISPONIBLE);
+            cupoService.save(cupo);
+        });
+        return saved;
+    }
+
+    public double calcularCosto(LocalDateTime inicio, LocalDateTime fin, Double tarifaPorHora) {
+        long horas = ChronoUnit.HOURS.between(inicio, fin);
+        return horas * tarifaPorHora;
+    }
+
+    public Optional<Reserva> findByQrToken(String qrToken) {
         return reservaRepository.findByQrToken(qrToken);
     }
 
-    public com.parqueadero.parqueaderoBackend.model.Reserva save(com.parqueadero.parqueaderoBackend.model.Reserva reservaModel) {
-        return reservaRepository.save(reservaModel);
+    public Reserva save(Reserva reserva) {
+        return reservaRepository.save(reserva);
     }
 }

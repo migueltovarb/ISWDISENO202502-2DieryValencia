@@ -63,7 +63,7 @@ public class PagoService {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-        if (reserva.getEstado() != EstadoReserva.PENDIENTE) {
+        if (reserva.getEstado() != EstadoReserva.PENDIENTE_PAGO) {
             throw new RuntimeException("Reserva no está pendiente de pago");
         }
 
@@ -79,7 +79,7 @@ public class PagoService {
         pagoRepository.save(pago);
 
         // Update reserva
-        reserva.setEstado(EstadoReserva.PAGADA);
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
         reserva.setQrToken(qrService.generateQrToken());
         reservaRepository.save(reserva);
 

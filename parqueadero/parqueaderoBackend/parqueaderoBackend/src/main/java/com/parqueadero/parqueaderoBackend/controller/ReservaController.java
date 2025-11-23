@@ -1,83 +1,108 @@
 package com.parqueadero.parqueaderoBackend.controller;
 
-import org.springframework.http.HttpStatus;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.parqueadero.parqueaderoBackend.dto.ReservaRequestDTO;
-import com.parqueadero.parqueaderoBackend.dto.ReservaResponseDTO;
+import com.parqueadero.parqueaderoBackend.model.EstadoReserva;
+import com.parqueadero.parqueaderoBackend.model.Reserva;
+import com.parqueadero.parqueaderoBackend.service.ReservaService;
 
 @RestController
 @RequestMapping("/api/reservas")
+@CrossOrigin(origins = "*")
 public class ReservaController {
 
-    private com.parqueadero.parqueaderoBackend.service.ReservaService reservaService;
-    private com.parqueadero.parqueaderoBackend.service.PagoService pagoService;
+    private final ReservaService reservaService;
 
-    public ReservaController() {}
-
-    public ReservaController(com.parqueadero.parqueaderoBackend.service.ReservaService reservaService, com.parqueadero.parqueaderoBackend.service.PagoService pagoService) {
+    public ReservaController(ReservaService reservaService) {
         this.reservaService = reservaService;
-        this.pagoService = pagoService;
-    }
-
-    public com.parqueadero.parqueaderoBackend.service.ReservaService getReservaService() {
-        return reservaService;
-    }
-
-    public void setReservaService(com.parqueadero.parqueaderoBackend.service.ReservaService reservaService) {
-        this.reservaService = reservaService;
-    }
-
-    public com.parqueadero.parqueaderoBackend.service.PagoService getPagoService() {
-        return pagoService;
-    }
-
-    public void setPagoService(com.parqueadero.parqueaderoBackend.service.PagoService pagoService) {
-        this.pagoService = pagoService;
-    }
-
-    @Override
-    public String toString() {
-        return "ReservaController{" +
-                "reservaService=" + reservaService +
-                ", pagoService=" + pagoService +
-                '}';
     }
 
     @PostMapping
-    public ResponseEntity<com.parqueadero.parqueaderoBackend.model.Reserva> createReserva(@RequestBody ReservaRequestDTO request) {
+    public ResponseEntity<Reserva> crearReserva(@RequestBody Reserva reserva) {
         try {
-            com.parqueadero.parqueaderoBackend.model.Reserva reserva = reservaService.createReserva(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(reserva);
+            Reserva created = reservaService.crearReserva(reserva);
+            return ResponseEntity.status(201).body(created);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
-    @PostMapping("/{id}/pagar")
-    public ResponseEntity<com.parqueadero.parqueaderoBackend.model.Pago> pagar(@PathVariable String id, @RequestParam Double monto, @RequestParam String medioPago) {
-        try {
-            com.parqueadero.parqueaderoBackend.model.Pago pago = pagoService.processPago(id, monto, medioPago);
-            return ResponseEntity.ok(pago);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping
+    public ResponseEntity<List<Reserva>> obtenerTodasReservas() {
+        List<Reserva> reservas = reservaService.findAll();
+        return ResponseEntity.ok(reservas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReservaResponseDTO> getReserva(@PathVariable String id) {
-        try {
-            ReservaResponseDTO response = reservaService.getReservaResponse(id);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
+    public ResponseEntity<Reserva> obtenerReserva(@PathVariable String id) {
+        Reserva reserva = reservaService.findById(id).orElse(null);
+        if (reserva == null) {
             return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(reserva);
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasUsuario(@PathVariable String usuarioId) {
+        List<Reserva> reservas = reservaService.findByUsuarioId(usuarioId);
+        return ResponseEntity.ok(reservas);
+    }
+
+    @GetMapping("/cupo/{cupoId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasCupo(@PathVariable String cupoId) {
+        List<Reserva> reservas = reservaService.findByCupoId(cupoId);
+        return ResponseEntity.ok(reservas);
+    }
+
+    @PatchMapping("/{id}/confirmar")
+    public ResponseEntity<Reserva> confirmarReserva(@PathVariable String id) {
+        try {
+            Reserva reserva = reservaService.confirmarReserva(id);
+            return ResponseEntity.ok(reserva);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<Reserva> cancelarReserva(@PathVariable String id) {
+        try {
+            Reserva reserva = reservaService.cancelarReserva(id);
+            return ResponseEntity.ok(reserva);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PatchMapping("/{id}/completar")
+    public ResponseEntity<Reserva> completarReserva(@PathVariable String id, @RequestBody Double costoFinal) {
+        try {
+            Reserva reserva = reservaService.completarReserva(id, costoFinal);
+            return ResponseEntity.ok(reserva);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reserva> actualizarReserva(@PathVariable String id, @RequestBody Reserva reserva) {
+        try {
+            reserva.setId(id);
+            Reserva updated = reservaService.save(reserva);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

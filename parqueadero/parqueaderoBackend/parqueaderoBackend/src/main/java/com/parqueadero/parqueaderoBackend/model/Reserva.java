@@ -3,6 +3,7 @@ package com.parqueadero.parqueaderoBackend.model;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "reservas")
@@ -13,21 +14,29 @@ public class Reserva {
     private String cupoId;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-    private Double total;
     private EstadoReserva estado;
-    private String qrToken; // unique token for QR
+    private Double costoEstimado;
+    private Double costoFinal;
+    private LocalDateTime fechaCreacion;
+    private String qrToken;
+
+    @Version
+    private Long version;
 
     public Reserva() {}
 
-    public Reserva(String id, String usuarioId, String cupoId, LocalDateTime fechaInicio, LocalDateTime fechaFin, Double total, EstadoReserva estado, String qrToken) {
+    public Reserva(String id, String usuarioId, String cupoId, LocalDateTime fechaInicio, LocalDateTime fechaFin, EstadoReserva estado, Double costoEstimado, Double costoFinal, LocalDateTime fechaCreacion, String qrToken, Long version) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.cupoId = cupoId;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.total = total;
         this.estado = estado;
+        this.costoEstimado = costoEstimado;
+        this.costoFinal = costoFinal;
+        this.fechaCreacion = fechaCreacion;
         this.qrToken = qrToken;
+        this.version = version;
     }
 
     public String getId() {
@@ -70,20 +79,36 @@ public class Reserva {
         this.fechaFin = fechaFin;
     }
 
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
-    }
-
     public EstadoReserva getEstado() {
         return estado;
     }
 
     public void setEstado(EstadoReserva estado) {
         this.estado = estado;
+    }
+
+    public Double getCostoEstimado() {
+        return costoEstimado;
+    }
+
+    public void setCostoEstimado(Double costoEstimado) {
+        this.costoEstimado = costoEstimado;
+    }
+
+    public Double getCostoFinal() {
+        return costoFinal;
+    }
+
+    public void setCostoFinal(Double costoFinal) {
+        this.costoFinal = costoFinal;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     public String getQrToken() {
@@ -94,6 +119,14 @@ public class Reserva {
         this.qrToken = qrToken;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "Reserva{" +
@@ -102,9 +135,12 @@ public class Reserva {
                 ", cupoId='" + cupoId + '\'' +
                 ", fechaInicio=" + fechaInicio +
                 ", fechaFin=" + fechaFin +
-                ", total=" + total +
                 ", estado=" + estado +
+                ", costoEstimado=" + costoEstimado +
+                ", costoFinal=" + costoFinal +
+                ", fechaCreacion=" + fechaCreacion +
                 ", qrToken='" + qrToken + '\'' +
+                ", version=" + version +
                 '}';
     }
 }

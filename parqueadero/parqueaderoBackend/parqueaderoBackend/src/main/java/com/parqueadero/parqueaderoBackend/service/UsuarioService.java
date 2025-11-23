@@ -5,48 +5,39 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.parqueadero.parqueaderoBackend.model.Usuario;
 import com.parqueadero.parqueaderoBackend.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
 
-    private UsuarioRepository usuarioRepository;
-
-    public UsuarioService() {}
+    private final UsuarioRepository usuarioRepository;
 
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public UsuarioRepository getUsuarioRepository() {
-        return usuarioRepository;
-    }
-
-    public void setUsuarioRepository(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
-
-    @Override
-    public String toString() {
-        return "UsuarioService{" +
-                "usuarioRepository=" + usuarioRepository +
-                '}';
-    }
-
-    public com.parqueadero.parqueaderoBackend.model.Usuario save(com.parqueadero.parqueaderoBackend.model.Usuario usuario) {
+    public Usuario save(Usuario usuario) {
+        // Validar que la placa no esté duplicada
+        if (usuario.getPlaca() != null && !usuario.getPlaca().isEmpty()) {
+            Optional<Usuario> existing = usuarioRepository.findByPlaca(usuario.getPlaca());
+            if (existing.isPresent() && !existing.get().getId().equals(usuario.getId())) {
+                throw new RuntimeException("La placa ya está registrada");
+            }
+        }
         return usuarioRepository.save(usuario);
     }
 
-    public List<com.parqueadero.parqueaderoBackend.model.Usuario> findAll() {
+    public List<Usuario> findAll() {
         return usuarioRepository.findAll();
     }
 
-    public Optional<com.parqueadero.parqueaderoBackend.model.Usuario> findById(String id) {
+    public Optional<Usuario> findById(String id) {
         return usuarioRepository.findById(id);
     }
 
-    public Optional<com.parqueadero.parqueaderoBackend.model.Usuario> findByEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+    public Optional<Usuario> findByPlaca(String placa) {
+        return usuarioRepository.findByPlaca(placa);
     }
 
     public void deleteById(String id) {

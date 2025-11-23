@@ -1,5 +1,7 @@
 package com.parqueadero.parqueaderoBackend.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,28 +25,50 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
-        Usuario savedUsuario = usuarioService.save(usuario);
-        return ResponseEntity.status(201).body(savedUsuario);
+        try {
+            Usuario savedUsuario = usuarioService.save(usuario);
+            return ResponseEntity.status(201).body(savedUsuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Usuario>> obtenerTodosUsuarios() {
+        List<Usuario> usuarios = usuarioService.findAll();
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerUsuario(@PathVariable String id) {
-        Usuario usuario = usuarioService.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        return ResponseEntity.ok(usuario);
+        try {
+            Usuario usuario = usuarioService.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            return ResponseEntity.ok(usuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarUsuario(@PathVariable String id, @RequestBody Usuario usuario) {
-        usuario.setId(id);
-        Usuario updatedUsuario = usuarioService.save(usuario);
-        return ResponseEntity.ok(updatedUsuario);
+        try {
+            usuario.setId(id);
+            Usuario updatedUsuario = usuarioService.save(usuario);
+            return ResponseEntity.ok(updatedUsuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
-        usuarioService.deleteById(id);
-        return ResponseEntity.noContent().build();
+        try {
+            usuarioService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
