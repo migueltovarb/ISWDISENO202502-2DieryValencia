@@ -10,14 +10,14 @@ public class Cupo {
     private String id;
     private String numero; // e.g. "A1", "B2"
     private String tipo; // e.g. "CARRO", "MOTO"
-    private double precio; // precio por hora
+    private Double precio; // precio por hora
     private EstadoCupo estado; // DISPONIBLE, OCUPADO
     @Version
     private Long version;
 
     public Cupo() {}
 
-    public Cupo(String id, String numero, String tipo, double precio, EstadoCupo estado, Long version) {
+    public Cupo(String id, String numero, String tipo, Double precio, EstadoCupo estado, Long version) {
         this.id = id;
         this.numero = numero;
         this.tipo = tipo;
@@ -50,11 +50,11 @@ public class Cupo {
         this.tipo = tipo;
     }
 
-    public double getPrecio() {
+    public Double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(Double precio) {
         this.precio = precio;
     }
 

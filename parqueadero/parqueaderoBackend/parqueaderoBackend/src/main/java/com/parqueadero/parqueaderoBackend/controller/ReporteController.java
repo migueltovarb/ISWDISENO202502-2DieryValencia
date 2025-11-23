@@ -31,7 +31,7 @@ public class ReporteController {
 
     @GetMapping("/facturacion")
     public ResponseEntity<Double> generarReporteFacturacion(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        double total = reporteService.getTotalFacturacion(fechaInicio, fechaFin);
+        Double total = reporteService.getTotalFacturacion(fechaInicio, fechaFin);
         return ResponseEntity.ok(total);
     }
 }

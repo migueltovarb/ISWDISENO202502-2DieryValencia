@@ -10,13 +10,13 @@ public class Pago {
     @Id
     private String id;
     private String reservaId;
-    private double monto;
+    private Double monto;
     private LocalDateTime fecha;
     private String medioPago; // e.g. "TARJETA", "EFECTIVO"
 
     public Pago() {}
 
-    public Pago(String id, String reservaId, double monto, LocalDateTime fecha, String medioPago) {
+    public Pago(String id, String reservaId, Double monto, LocalDateTime fecha, String medioPago) {
         this.id = id;
         this.reservaId = reservaId;
         this.monto = monto;
@@ -40,11 +40,11 @@ public class Pago {
         this.reservaId = reservaId;
     }
 
-    public double getMonto() {
+    public Double getMonto() {
         return monto;
     }
 
-    public void setMonto(double monto) {
+    public void setMonto(Double monto) {
         this.monto = monto;
     }
 

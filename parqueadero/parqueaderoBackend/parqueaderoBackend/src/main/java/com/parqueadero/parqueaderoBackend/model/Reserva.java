@@ -13,13 +13,13 @@ public class Reserva {
     private String cupoId;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-    private double total;
+    private Double total;
     private EstadoReserva estado;
     private String qrToken; // unique token for QR
 
     public Reserva() {}
 
-    public Reserva(String id, String usuarioId, String cupoId, LocalDateTime fechaInicio, LocalDateTime fechaFin, double total, EstadoReserva estado, String qrToken) {
+    public Reserva(String id, String usuarioId, String cupoId, LocalDateTime fechaInicio, LocalDateTime fechaFin, Double total, EstadoReserva estado, String qrToken) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.cupoId = cupoId;
@@ -70,11 +70,11 @@ public class Reserva {
         this.fechaFin = fechaFin;
     }
 
-    public double getTotal() {
+    public Double getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(Double total) {
         this.total = total;
     }
 

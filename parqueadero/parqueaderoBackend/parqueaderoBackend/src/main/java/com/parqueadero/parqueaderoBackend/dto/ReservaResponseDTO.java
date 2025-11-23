@@ -10,13 +10,13 @@ public class ReservaResponseDTO {
     private String cupoNumero;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-    private double total;
+    private Double total;
     private EstadoReserva estado;
     private String qrToken;
 
     public ReservaResponseDTO() {}
 
-    public ReservaResponseDTO(String id, String usuarioNombre, String cupoNumero, LocalDateTime fechaInicio, LocalDateTime fechaFin, double total, EstadoReserva estado, String qrToken) {
+    public ReservaResponseDTO(String id, String usuarioNombre, String cupoNumero, LocalDateTime fechaInicio, LocalDateTime fechaFin, Double total, EstadoReserva estado, String qrToken) {
         this.id = id;
         this.usuarioNombre = usuarioNombre;
         this.cupoNumero = cupoNumero;
@@ -67,11 +67,11 @@ public class ReservaResponseDTO {
         this.fechaFin = fechaFin;
     }
 
-    public double getTotal() {
+    public Double getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(Double total) {
         this.total = total;
     }
 

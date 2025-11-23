@@ -1,51 +1,50 @@
 package com.parqueadero.parqueaderoBackend.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.parqueadero.parqueaderoBackend.repository.CupoRepository;
+import com.parqueadero.parqueaderoBackend.model.Cupo;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
-import com.parqueadero.parqueaderoBackend.repository.CupoRepository;
 
 @Service
 public class CupoService {
 
-    private CupoRepository cupoRepository;
+    private final CupoRepository cupoRepository;
 
-    public CupoService() {}
-
+    // Inyección por constructor
+    @Autowired
     public CupoService(CupoRepository cupoRepository) {
         this.cupoRepository = cupoRepository;
     }
 
-    public CupoRepository getCupoRepository() {
-        return cupoRepository;
-    }
-
-    public void setCupoRepository(CupoRepository cupoRepository) {
-        this.cupoRepository = cupoRepository;
-    }
-
-    @Override
-    public String toString() {
-        return "CupoService{" +
-                "cupoRepository=" + cupoRepository +
-                '}';
-    }
-
-    public com.parqueadero.parqueaderoBackend.model.Cupo save(com.parqueadero.parqueaderoBackend.model.Cupo cupo) {
+    // Método para guardar un cupo
+    public Cupo save(Cupo cupo) {
         return cupoRepository.save(cupo);
     }
 
-    public List<com.parqueadero.parqueaderoBackend.model.Cupo> findAll() {
+    // Método para obtener todos los cupos
+    public List<Cupo> findAll() {
         return cupoRepository.findAll();
     }
 
-    public Optional<com.parqueadero.parqueaderoBackend.model.Cupo> findById(String id) {
+    // Método para buscar por ID
+    public Optional<Cupo> findById(String id) {
         return cupoRepository.findById(id);
     }
 
+    // Método para eliminar un cupo
     public void deleteById(String id) {
         cupoRepository.deleteById(id);
+    }
+
+    // Método para buscar cupos disponibles
+    public List<Cupo> findByEstado(String estado) {
+        return cupoRepository.findByEstado(estado);
+    }
+
+    // Método para buscar cupos por tipo
+    public List<Cupo> findByTipo(String tipo) {
+        return cupoRepository.findByTipo(tipo);
     }
 }

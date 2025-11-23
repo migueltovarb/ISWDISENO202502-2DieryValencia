@@ -95,7 +95,7 @@ public class ReservaService {
 
         // Calculate total
         long hours = ChronoUnit.HOURS.between(request.getFechaInicio(), request.getFechaFin());
-        double total = hours * cupoModel.getPrecio();
+        Double total = hours * cupoModel.getPrecio();
 
         // Create reserva
         com.parqueadero.parqueaderoBackend.model.Reserva reservaModel = new com.parqueadero.parqueaderoBackend.model.Reserva(

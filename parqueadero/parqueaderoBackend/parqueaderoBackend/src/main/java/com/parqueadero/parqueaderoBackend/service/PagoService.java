@@ -59,7 +59,7 @@ public class PagoService {
                 '}';
     }
 
-    public Pago processPago(String reservaId, double monto, String medioPago) {
+    public Pago processPago(String reservaId, Double monto, String medioPago) {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 

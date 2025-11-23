@@ -62,7 +62,7 @@ public class ReservaController {
     }
 
     @PostMapping("/{id}/pagar")
-    public ResponseEntity<com.parqueadero.parqueaderoBackend.model.Pago> pagar(@PathVariable String id, @RequestParam double monto, @RequestParam String medioPago) {
+    public ResponseEntity<com.parqueadero.parqueaderoBackend.model.Pago> pagar(@PathVariable String id, @RequestParam Double monto, @RequestParam String medioPago) {
         try {
             com.parqueadero.parqueaderoBackend.model.Pago pago = pagoService.processPago(id, monto, medioPago);
             return ResponseEntity.ok(pago);

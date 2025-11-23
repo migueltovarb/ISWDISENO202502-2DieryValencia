@@ -63,7 +63,7 @@ public class ReporteService {
     }
 
     // Reporte de facturación total en un rango de fechas
-    public double getTotalFacturacion(LocalDate inicio, LocalDate fin) {
+    public Double getTotalFacturacion(LocalDate inicio, LocalDate fin) {
         return pagoRepository.findAll().stream()
                 .filter(p -> !p.getFecha().toLocalDate().isBefore(inicio) && !p.getFecha().toLocalDate().isAfter(fin))
                 .mapToDouble(Pago::getMonto)
