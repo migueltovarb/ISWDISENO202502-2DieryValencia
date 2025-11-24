@@ -95,6 +95,16 @@ public class ReservaController {
         }
     }
 
+    @PatchMapping("/{id}/iniciar")
+    public ResponseEntity<Reserva> iniciarReserva(@PathVariable String id) {
+        try {
+            Reserva reserva = reservaService.cambiarEstado(id, EstadoReserva.EN_USO);
+            return ResponseEntity.ok(reserva);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Reserva> actualizarReserva(@PathVariable String id, @RequestBody Reserva reserva) {
         try {

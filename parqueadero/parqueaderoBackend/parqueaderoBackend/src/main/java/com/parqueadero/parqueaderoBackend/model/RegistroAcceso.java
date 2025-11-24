@@ -3,6 +3,7 @@ package com.parqueadero.parqueaderoBackend.model;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "registros_acceso")
@@ -10,18 +11,26 @@ public class RegistroAcceso {
     @Id
     private String id;
     private String reservaId;
-    private LocalDateTime fechaEntrada;
-    private LocalDateTime fechaSalida; // nullable
-    private EstadoRegistroAcceso estado;
+    private String qrId;
+    private TipoAcceso tipoAcceso;
+    private LocalDateTime timestamp;
+    private boolean exitoso;
+    private String motivoRechazo;
+
+    @Version
+    private Long version;
 
     public RegistroAcceso() {}
 
-    public RegistroAcceso(String id, String reservaId, LocalDateTime fechaEntrada, LocalDateTime fechaSalida, EstadoRegistroAcceso estado) {
+    public RegistroAcceso(String id, String reservaId, String qrId, TipoAcceso tipoAcceso, LocalDateTime timestamp, boolean exitoso, String motivoRechazo, Long version) {
         this.id = id;
         this.reservaId = reservaId;
-        this.fechaEntrada = fechaEntrada;
-        this.fechaSalida = fechaSalida;
-        this.estado = estado;
+        this.qrId = qrId;
+        this.tipoAcceso = tipoAcceso;
+        this.timestamp = timestamp;
+        this.exitoso = exitoso;
+        this.motivoRechazo = motivoRechazo;
+        this.version = version;
     }
 
     public String getId() {
@@ -40,28 +49,52 @@ public class RegistroAcceso {
         this.reservaId = reservaId;
     }
 
-    public LocalDateTime getFechaEntrada() {
-        return fechaEntrada;
+    public String getQrId() {
+        return qrId;
     }
 
-    public void setFechaEntrada(LocalDateTime fechaEntrada) {
-        this.fechaEntrada = fechaEntrada;
+    public void setQrId(String qrId) {
+        this.qrId = qrId;
     }
 
-    public LocalDateTime getFechaSalida() {
-        return fechaSalida;
+    public TipoAcceso getTipoAcceso() {
+        return tipoAcceso;
     }
 
-    public void setFechaSalida(LocalDateTime fechaSalida) {
-        this.fechaSalida = fechaSalida;
+    public void setTipoAcceso(TipoAcceso tipoAcceso) {
+        this.tipoAcceso = tipoAcceso;
     }
 
-    public EstadoRegistroAcceso getEstado() {
-        return estado;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
-    public void setEstado(EstadoRegistroAcceso estado) {
-        this.estado = estado;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isExitoso() {
+        return exitoso;
+    }
+
+    public void setExitoso(boolean exitoso) {
+        this.exitoso = exitoso;
+    }
+
+    public String getMotivoRechazo() {
+        return motivoRechazo;
+    }
+
+    public void setMotivoRechazo(String motivoRechazo) {
+        this.motivoRechazo = motivoRechazo;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
@@ -69,9 +102,12 @@ public class RegistroAcceso {
         return "RegistroAcceso{" +
                 "id='" + id + '\'' +
                 ", reservaId='" + reservaId + '\'' +
-                ", fechaEntrada=" + fechaEntrada +
-                ", fechaSalida=" + fechaSalida +
-                ", estado=" + estado +
+                ", qrId='" + qrId + '\'' +
+                ", tipoAcceso=" + tipoAcceso +
+                ", timestamp=" + timestamp +
+                ", exitoso=" + exitoso +
+                ", motivoRechazo='" + motivoRechazo + '\'' +
+                ", version=" + version +
                 '}';
     }
 }

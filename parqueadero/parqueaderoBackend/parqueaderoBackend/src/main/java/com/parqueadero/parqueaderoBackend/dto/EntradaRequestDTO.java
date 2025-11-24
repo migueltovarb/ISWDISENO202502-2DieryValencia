@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class EntradaRequestDTO {
-    private String qrToken;
+    private String qrId;
+    private String reservaId;
 }

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.bson.Document;
 import org.springframework.stereotype.Service;
 
-import com.parqueadero.parqueaderoBackend.model.Pago;
 import com.parqueadero.parqueaderoBackend.repository.PagoRepository;
 import com.parqueadero.parqueaderoBackend.repository.ReservaRepository;
 
@@ -65,8 +64,8 @@ public class ReporteService {
     // Reporte de facturación total en un rango de fechas
     public Double getTotalFacturacion(LocalDate inicio, LocalDate fin) {
         return pagoRepository.findAll().stream()
-                .filter(p -> !p.getFecha().toLocalDate().isBefore(inicio) && !p.getFecha().toLocalDate().isAfter(fin))
-                .mapToDouble(Pago::getMonto)
+                .filter(p -> p.getFechaPago() != null && !p.getFechaPago().toLocalDate().isBefore(inicio) && !p.getFechaPago().toLocalDate().isAfter(fin))
+                .mapToDouble(p -> p.getMonto() != null ? p.getMonto() : 0.0)
                 .sum();
     }
 

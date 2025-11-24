@@ -3,6 +3,7 @@ package com.parqueadero.parqueaderoBackend.model;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "pagos")
@@ -11,17 +12,25 @@ public class Pago {
     private String id;
     private String reservaId;
     private Double monto;
-    private LocalDateTime fecha;
-    private String medioPago; // e.g. "TARJETA", "EFECTIVO"
+    private MetodoPago metodoPago;
+    private String tokenPago;
+    private EstadoPago estado;
+    private LocalDateTime fechaPago;
+
+    @Version
+    private Long version;
 
     public Pago() {}
 
-    public Pago(String id, String reservaId, Double monto, LocalDateTime fecha, String medioPago) {
+    public Pago(String id, String reservaId, Double monto, MetodoPago metodoPago, String tokenPago, EstadoPago estado, LocalDateTime fechaPago, Long version) {
         this.id = id;
         this.reservaId = reservaId;
         this.monto = monto;
-        this.fecha = fecha;
-        this.medioPago = medioPago;
+        this.metodoPago = metodoPago;
+        this.tokenPago = tokenPago;
+        this.estado = estado;
+        this.fechaPago = fechaPago;
+        this.version = version;
     }
 
     public String getId() {
@@ -48,20 +57,44 @@ public class Pago {
         this.monto = monto;
     }
 
-    public LocalDateTime getFecha() {
-        return fecha;
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
     }
 
-    public void setFecha(LocalDateTime fecha) {
-        this.fecha = fecha;
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
     }
 
-    public String getMedioPago() {
-        return medioPago;
+    public String getTokenPago() {
+        return tokenPago;
     }
 
-    public void setMedioPago(String medioPago) {
-        this.medioPago = medioPago;
+    public void setTokenPago(String tokenPago) {
+        this.tokenPago = tokenPago;
+    }
+
+    public EstadoPago getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoPago estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getFechaPago() {
+        return fechaPago;
+    }
+
+    public void setFechaPago(LocalDateTime fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
@@ -70,8 +103,11 @@ public class Pago {
                 "id='" + id + '\'' +
                 ", reservaId='" + reservaId + '\'' +
                 ", monto=" + monto +
-                ", fecha=" + fecha +
-                ", medioPago='" + medioPago + '\'' +
+                ", metodoPago=" + metodoPago +
+                ", tokenPago='" + tokenPago + '\'' +
+                ", estado=" + estado +
+                ", fechaPago=" + fechaPago +
+                ", version=" + version +
                 '}';
     }
 }
