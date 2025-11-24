@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,10 +31,20 @@ public class ReservaController {
 
     @PostMapping
     public ResponseEntity<Reserva> crearReserva(@RequestBody Reserva reserva) {
+        System.out.println("===== CREANDO RESERVA =====");
+        System.out.println("Reserva recibida: " + reserva);
+        System.out.println("Usuario ID: " + reserva.getUsuarioId());
+        System.out.println("Cupo ID: " + reserva.getCupoId());
+        System.out.println("Fecha inicio: " + reserva.getFechaInicio());
+        System.out.println("Fecha fin: " + reserva.getFechaFin());
+
         try {
-            Reserva created = reservaService.crearReserva(reserva);
-            return ResponseEntity.status(201).body(created);
+            Reserva nuevaReserva = reservaService.crearReserva(reserva);
+            System.out.println("✅ Reserva creada: " + nuevaReserva.getId());
+            return ResponseEntity.status(201).body(nuevaReserva);
         } catch (RuntimeException e) {
+            System.out.println("❌ ERROR al crear reserva: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -113,6 +124,16 @@ public class ReservaController {
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarReserva(@PathVariable String id) {
+        try {
+            reservaService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

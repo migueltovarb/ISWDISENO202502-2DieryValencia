@@ -138,4 +138,17 @@ public class ReservaService {
     public Reserva save(Reserva reserva) {
         return reservaRepository.save(reserva);
     }
+
+    public void deleteById(String id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        // Liberar cupo si estaba confirmado o en uso
+        if (reserva.getEstado() == EstadoReserva.CONFIRMADA || reserva.getEstado() == EstadoReserva.EN_USO) {
+            cupoService.findById(reserva.getCupoId()).ifPresent(cupo -> {
+                cupo.setEstado(EstadoCupo.DISPONIBLE);
+                cupoService.save(cupo);
+            });
+        }
+        reservaRepository.deleteById(id);
+    }
 }

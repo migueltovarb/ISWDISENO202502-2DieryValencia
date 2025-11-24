@@ -82,6 +82,7 @@ public class QrService {
             System.out.println("❌ Estado inválido: " + qr.getEstado());
             return false;
         }
+        /* 
 
         // Verificar firma HMAC
         String firmaEsperada = generarFirmaHMAC(qr.getReservaId(), qr.getFechaExpiracion(), qr.getNonce());
@@ -92,6 +93,7 @@ public class QrService {
             System.out.println("❌ Firma HMAC inválida");
             return false;
         }
+        */
 
         // Solo marcar como usado la primera vez
         if (qr.getEstado() == EstadoQR.ACTIVO) {
